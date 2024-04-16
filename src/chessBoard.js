@@ -2,10 +2,16 @@ class nodes {
     constructor (x, y) {
         this.xAxis = x
         this.yAxis = y
-        this.above = null
-        this.below = null
-        this.right = null
-        this.left = null
+        this.next = null
+        this.prev = null
+        this.UUR = null
+        this.URR = null
+        this.ULL = null
+        this.UUL = null
+        this.DRR = null
+        this.DDR = null
+        this.DLL = null
+        this.DDL = null
     }
 }
 class chessBoard {
@@ -16,107 +22,86 @@ class chessBoard {
     buildChessBoard () {
         let start = this.root
         while (start.xAxis <= 7) {
-            if (start.xAxis % 2 === 0) {
-                while (start.yAxis < 7) {
-                    let newY = start.yAxis + 1
-                    let prevNode = start
-                    start = new nodes(start.xAxis, newY)
-                    start.below = prevNode
-                    prevNode.above = start 
-                }
-            }
-            else {
-                while (start.yAxis > 0) {
-                    let newY = start.yAxis - 1
-                    let prevNode = start
-                    start = new nodes (start.xAxis, newY)
-                    start.above = prevNode
-                    prevNode.below = start
-                }
+            while (start.yAxis < 7) {
+                let newY = start.yAxis + 1
+                let prevNode = start
+                start = new nodes(start.xAxis, newY)
+                prevNode.next = start 
             }
             let newX = start.xAxis + 1
             let prevNode = start
-            start =  new nodes (newX, start.yAxis)
+            start =  new nodes (newX, 0)
             if (start.xAxis === 8){
                 break
             }
-            prevNode.right = start
-            start.left = prevNode
+            prevNode.next = start
         }
         start = this.root
-        while (start.xAxis <= 7) {
-            let currentNode
-            if (start.xAxis % 2 != 0) {
-                if (start.yAxis === 0) {
-                    currentNode = start.right
-                }
-                else {
-                    currentNode = start.below
-                }
+        let newX
+        let newY
+        while (start.xAxis <= 7 && start.yAxis <=7) {
+            newX = start.xAxis + 1
+            newY = start.yAxis + 2
+            if (this.checkValid(newX, newY) === true) {
+                start.UUR = this.find(newX, newY)
+            }
+            newX = start.xAxis + 2
+            newY = start.yAxis + 1
+            if (this.checkValid(newX, newY) === true) {
+                start.URR = this.find(newX, newY)
+            }
+            newX = start.xAxis - 2
+            newY = start.yAxis + 1
+            if (this.checkValid(newX, newY) === true) {
+                start.ULL = this.find(newX, newY)
+            }
+            newX = start.xAxis - 1
+            newY = start.yAxis + 2
+            if (this.checkValid(newX, newY) === true) {
+                start.UUL = this.find(newX, newY)
+            }
+            newX = start.xAxis + 2
+            newY = start.yAxis - 1
+            if (this.checkValid(newX, newY) === true) {
+                start.DRR = this.find(newX, newY)
+            }
+            newX = start.xAxis + 1
+            newY = start.yAxis - 2
+            if (this.checkValid(newX, newY) === true) {
+                start.DDR = this.find(newX, newY)
+            }
+            newX = start.xAxis - 2
+            newY = start.yAxis - 1
+            if (this.checkValid(newX, newY) === true) {
+                start.DLL = this.find(newX, newY)
+            }
+            newX = start.xAxis - 1
+            newY = start.yAxis - 2
+            if (this.checkValid(newX, newY) === true) {
+                start.DDL = this.find(newX, newY)
+            }
+            if (start.next) {
+                start = start.next
             }
             else {
-                if (start.yAxis === 7) {
-                    currentNode = start.right
-                }
-                else {
-                    currentNode = start.above
-                }
-            }
-            while (currentNode.xAxis != (start.xAxis + 1)) {
-                while(currentNode.yAxis != start.yAxis) {
-                    if (start.xAxis === 7) {
-                        return
-                    }
-                    if (currentNode.xAxis % 2 === 0) {
-                        if (currentNode.yAxis != 7) {
-                            currentNode = currentNode.above
-                        }
-                        else {
-                            currentNode = currentNode.right
-                        }
-                    }
-                    else {
-                        if (currentNode.yAxis != 0) {
-                            currentNode = currentNode.below
-                        }
-                        else {
-                            currentNode = currentNode.right
-                        }
-                    }
-                }
-            }
-            currentNode.left = start
-            start.right = currentNode
-            if (start.xAxis %2 === 0) {
-                if (start.yAxis != 7) {
-                    start = start.above
-                }
-                else {
-                    start = start.right
-                }
-            }
-            else {
-                if (start.yAxis != 0) {
-                    start = start.below
-                }
-                else {
-                    start = start.right
-                }
+                return
             }
         }
     }
-    find (start) {
+    checkValid (x, y) {
+        if (x > 0 && x <= 7 && y > 0 && y <= 7) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    find (x, y) {
         let currentNode = this.root
-        let moveX = start[0]
-        let moveY = start[1]
-        while (currentNode.xAxis != start[0] && currentNode.yAxis != start[1]) {
-            if (start [0] > 0) {
-                currentNode = currentNode.right
-                moveX = moveX - 1
-            }
-            if (start[1] > 0) {
-                currentNode = currentNode.above
-                moveY = moveY - 1
+        while (currentNode.xAxis != x) {
+            currentNode = currentNode.next
+            while (currentNode.yAxis != y) {
+                currentNode = currentNode.next
             }
         }
         return currentNode
